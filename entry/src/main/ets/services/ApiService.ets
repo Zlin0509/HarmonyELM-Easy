@@ -79,7 +79,7 @@ export class ApiService {
 
   // 获取商家列表
   static async getRestaurants(): Promise<Restaurant[]> {
-    return ApiService.request<Restaurant[]>('/restaurants');
+    return await ApiService.request<Restaurant[]>('/restaurants');
   }
 
   // 获取商家详情

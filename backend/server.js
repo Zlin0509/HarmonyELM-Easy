@@ -121,46 +121,61 @@ async function initDatabase() {
     }
 }
 
-function normalizeRestaurant(restaurant) {
+// API路由
+
+function normalizeRestaurant(row) {
+    console.log('正在转换:', row.name, row.tags);
     return {
-        ...restaurant,
-        tags: restaurant.tags ? restaurant.tags.split(',').map(tag => tag.trim()) : []
+        ...row,
+        tags: row.tags ? row.tags.split(',').map(tag => tag.trim()) : []
     };
 }
 
-// API路由
-
-// 获取商家列表
 app.get('/api/restaurants', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM restaurants ORDER BY sales DESC');
-
-        // 转换 tags 为数组
+        // 统一格式化
+        console.log(rows);
         const restaurants = rows.map(normalizeRestaurant);
-
-        res.json({ code: 200, data: restaurants, message: '成功' });
+        console.log(restaurants);
+        res.json({
+            code: 200,
+            data: restaurants,
+            message: '成功'
+        });
     } catch (error) {
-        res.status(500).json({ code: 500, message: error.message });
+        res.status(500).json({
+            code: 500,
+            message: error.message
+        });
     }
 });
 
-// 获取商家详情
+// ✅ 获取商家详情
 app.get('/api/restaurants/:id', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM restaurants WHERE id = ?', [req.params.id]);
-
         if (rows.length === 0) {
-            return res.status(404).json({ code: 404, message: '商家不存在' });
+            return res.status(404).json({
+                code: 404,
+                message: '商家不存在'
+            });
         }
-
-        // 转换 tags 为数组
+        // 格式化单条记录
         const restaurant = normalizeRestaurant(rows[0]);
-
-        res.json({ code: 200, data: restaurant, message: '成功' });
+        res.json({
+            code: 200,
+            data: restaurant,
+            message: '成功'
+        });
     } catch (error) {
-        res.status(500).json({ code: 500, message: error.message });
+        res.status(500).json({
+            code: 500,
+            message: error.message
+        });
     }
 });
+
 
 // 获取商家菜品列表
 app.get('/api/restaurants/:id/dishes', async (req, res) => {
@@ -371,48 +386,3 @@ app.listen(PORT, async () => {
     console.log(`服务器运行在 http://localhost:${PORT}`);
     await initDatabase();
 });
-
-// 插入示例数据（可选）
-async function insertSampleData() {
-    try {
-        const connection = await pool.getConnection();
-
-        // 检查是否已有数据
-        const [restaurants] = await connection.query('SELECT COUNT(*) as count FROM restaurants');
-        if (restaurants[0].count > 0) {
-            connection.release();
-            return;
-        }
-
-        // 插入示例商家
-        const [restaurantResult] = await connection.query(
-            `INSERT INTO restaurants (name, image, rating, sales, delivery_time, delivery_fee, min_price, distance, tags, address)
-       VALUES 
-       ('肯德基', 'https://via.placeholder.com/200', 4.8, 1234, '30分钟', 5.00, 20.00, '1.2km', '快餐,炸鸡', '北京市朝阳区xxx'),
-       ('麦当劳', 'https://via.placeholder.com/200', 4.7, 987, '25分钟', 4.00, 15.00, '0.8km', '快餐,汉堡', '北京市朝阳区xxx'),
-       ('必胜客', 'https://via.placeholder.com/200', 4.6, 567, '40分钟', 6.00, 50.00, '2.1km', '西餐,披萨', '北京市朝阳区xxx')`
-        );
-
-        // 插入示例菜品
-        await connection.query(
-            `INSERT INTO dishes (restaurant_id, name, image, price, description, category, stock)
-       VALUES 
-       (1, '香辣鸡腿堡', 'https://via.placeholder.com/100', 25.00, '香辣可口的鸡腿堡', '汉堡', 100),
-       (1, '原味鸡块', 'https://via.placeholder.com/100', 18.00, '外酥内嫩的鸡块', '小食', 100),
-       (1, '薯条', 'https://via.placeholder.com/100', 12.00, '经典薯条', '小食', 100),
-       (1, '可乐', 'https://via.placeholder.com/100', 8.00, '冰镇可乐', '饮品', 100),
-       (2, '巨无霸', 'https://via.placeholder.com/100', 28.00, '经典巨无霸汉堡', '汉堡', 100),
-       (2, '麦乐鸡', 'https://via.placeholder.com/100', 20.00, '香脆麦乐鸡', '小食', 100),
-       (3, '超级至尊披萨', 'https://via.placeholder.com/100', 68.00, '多种配料超级至尊', '披萨', 100),
-       (3, '意式肉酱面', 'https://via.placeholder.com/100', 45.00, '经典意式肉酱面', '主食', 100)`
-        );
-
-        connection.release();
-        console.log('示例数据插入完成');
-    } catch (error) {
-        console.error('插入示例数据失败:', error);
-    }
-}
-
-// 延迟插入示例数据
-setTimeout(insertSampleData, 2000);
