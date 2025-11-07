@@ -22,51 +22,7 @@ export struct HomePageContent {
   async loadRestaurants() {
     this.loading = true;
     try {
-      // 这里可以替换为实际的API调用
       this.restaurants = await ApiService.getRestaurants();
-      
-      // 模拟数据
-      // this.restaurants = [
-      //   {
-      //     id: 1,
-      //     name: '肯德基',
-      //     image: 'https://via.placeholder.com/200',
-      //     rating: 4.8,
-      //     sales: 1234,
-      //     deliveryTime: '30分钟',
-      //     deliveryFee: 5,
-      //     minPrice: 20,
-      //     distance: '1.2km',
-      //     tags: ['快餐', '炸鸡'],
-      //     address: '北京市朝阳区xxx'
-      //   },
-      //   {
-      //     id: 2,
-      //     name: '麦当劳',
-      //     image: 'https://via.placeholder.com/200',
-      //     rating: 4.7,
-      //     sales: 987,
-      //     deliveryTime: '25分钟',
-      //     deliveryFee: 4,
-      //     minPrice: 15,
-      //     distance: '0.8km',
-      //     tags: ['快餐', '汉堡'],
-      //     address: '北京市朝阳区xxx'
-      //   },
-      //   {
-      //     id: 3,
-      //     name: '必胜客',
-      //     image: 'https://via.placeholder.com/200',
-      //     rating: 4.6,
-      //     sales: 567,
-      //     deliveryTime: '40分钟',
-      //     deliveryFee: 6,
-      //     minPrice: 50,
-      //     distance: '2.1km',
-      //     tags: ['西餐', '披萨'],
-      //     address: '北京市朝阳区xxx'
-      //   }
-      // ];
     } catch (error) {
       console.error('加载商家列表失败:', error);
     } finally {

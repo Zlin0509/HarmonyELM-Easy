@@ -17,73 +17,7 @@ export struct OrderListPage {
   async loadOrders() {
     this.loading = true;
     try {
-      // 这里可以替换为实际的API调用
       this.orders = await ApiService.getUserOrders(1); // 1是用户ID，实际应该从登录信息获取
-      
-      // 模拟数据
-      // const dish1: Dish = {
-      //   id: 1,
-      //   restaurantId: 1,
-      //   name: '香辣鸡腿堡',
-      //   image: '',
-      //   price: 25,
-      //   description: '',
-      //   category: '',
-      //   stock: 100
-      // };
-      //
-      // const cartItem1: CartItem = {
-      //   dish: dish1,
-      //   quantity: 2,
-      //   restaurantId: 1,
-      //   restaurantName: '肯德基'
-      // };
-      //
-      // const order1: Order = {
-      //   id: 1,
-      //   userId: 1,
-      //   restaurantId: 1,
-      //   restaurantName: '肯德基',
-      //   items: [cartItem1],
-      //   totalPrice: 50,
-      //   status: 'pending',
-      //   createTime: new Date().toISOString(),
-      //   address: '北京市朝阳区xxx',
-      //   phone: '13800138000'
-      // };
-      //
-      // const dish2: Dish = {
-      //   id: 2,
-      //   restaurantId: 2,
-      //   name: '巨无霸',
-      //   image: '',
-      //   price: 28,
-      //   description: '',
-      //   category: '',
-      //   stock: 100
-      // };
-      //
-      // const cartItem2: CartItem = {
-      //   dish: dish2,
-      //   quantity: 1,
-      //   restaurantId: 2,
-      //   restaurantName: '麦当劳'
-      // };
-      //
-      // const order2: Order = {
-      //   id: 2,
-      //   userId: 1,
-      //   restaurantId: 2,
-      //   restaurantName: '麦当劳',
-      //   items: [cartItem2],
-      //   totalPrice: 28,
-      //   status: 'delivering',
-      //   createTime: new Date(Date.now() - 3600000).toISOString(),
-      //   address: '北京市朝阳区xxx',
-      //   phone: '13800138000'
-      // };
-      //
-      // this.orders = [order1, order2];
     } catch (error) {
       console.error('加载订单列表失败:', error);
     } finally {

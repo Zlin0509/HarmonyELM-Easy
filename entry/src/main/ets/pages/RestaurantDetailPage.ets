@@ -30,54 +30,7 @@ struct RestaurantDetailPage {
   async loadDishes() {
     this.loading = true;
     try {
-      // 这里可以替换为实际的API调用
-      // this.dishes = await ApiService.getDishesByRestaurant(this.restaurant.id);
-      
-      // 模拟数据
-      this.dishes = [
-        {
-          id: 1,
-          restaurantId: this.restaurant.id,
-          name: '香辣鸡腿堡',
-          image: 'https://via.placeholder.com/100',
-          price: 25,
-          description: '香辣可口的鸡腿堡',
-          category: '汉堡',
-          stock: 100
-        },
-        {
-          id: 2,
-          restaurantId: this.restaurant.id,
-          name: '原味鸡块',
-          image: 'https://via.placeholder.com/100',
-          price: 18,
-          description: '外酥内嫩的鸡块',
-          category: '小食',
-          stock: 100
-        },
-        {
-          id: 3,
-          restaurantId: this.restaurant.id,
-          name: '薯条',
-          image: 'https://via.placeholder.com/100',
-          price: 12,
-          description: '经典薯条',
-          category: '小食',
-          stock: 100
-        },
-        {
-          id: 4,
-          restaurantId: this.restaurant.id,
-          name: '可乐',
-          image: 'https://via.placeholder.com/100',
-          price: 8,
-          description: '冰镇可乐',
-          category: '饮品',
-          stock: 100
-        }
-      ];
-
-      // 提取分类
+      this.dishes = await ApiService.getDishesByRestaurant(this.restaurant.id);
       this.categories = Array.from(new Set(this.dishes.map(d => d.category)));
       if (this.categories.length > 0) {
         this.selectedCategory = this.categories[0];
