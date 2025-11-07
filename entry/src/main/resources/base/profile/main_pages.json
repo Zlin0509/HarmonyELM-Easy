@@ -1,0 +1,12 @@
+{
+  "src": [
+    "pages/MainPage",
+    "pages/HomePage",
+    "pages/RestaurantDetailPage",
+    "pages/CartPage",
+    "pages/OrderPage",
+    "pages/UserInfoPage",
+    "pages/AddressPage",
+    "pages/SettingsPage"
+  ]
+}
