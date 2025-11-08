@@ -124,10 +124,27 @@ async function initDatabase() {
 // API路由
 
 function normalizeRestaurant(row) {
-    console.log('正在转换:', row.name, row.tags);
+    return {
+        id: row.id,
+        name: row.name,
+        image: row.image,
+        rating: Number(row.rating),
+        sales: Number(row.sales),
+        deliveryTime: row.delivery_time,
+        deliveryFee: Number(row.delivery_fee),
+        minPrice: Number(row.min_price),
+        distance: row.distance,
+        tags: row.tags ? row.tags.split(',').map(tag => tag.trim()) : [],
+        address: row.address,
+    };
+}
+
+
+function normalizeDish(row) {
     return {
         ...row,
-        tags: row.tags ? row.tags.split(',').map(tag => tag.trim()) : []
+        price: row.price ? Number(row.price) : 0,
+        stock: row.stock ? Number(row.stock) : 0,
     };
 }
 
@@ -135,9 +152,7 @@ app.get('/api/restaurants', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM restaurants ORDER BY sales DESC');
         // 统一格式化
-        console.log(rows);
         const restaurants = rows.map(normalizeRestaurant);
-        console.log(restaurants);
         res.json({
             code: 200,
             data: restaurants,
@@ -184,7 +199,8 @@ app.get('/api/restaurants/:id/dishes', async (req, res) => {
             'SELECT * FROM dishes WHERE restaurant_id = ? ORDER BY category, id',
             [req.params.id]
         );
-        res.json({ code: 200, data: rows, message: '成功' });
+        const dishes = rows.map(normalizeDish);
+        res.json({ code: 200, data: dishes, message: '成功' });
     } catch (error) {
         res.status(500).json({ code: 500, message: error.message });
     }
@@ -197,7 +213,8 @@ app.get('/api/dishes/:id', async (req, res) => {
         if (rows.length === 0) {
             return res.status(404).json({ code: 404, message: '菜品不存在' });
         }
-        res.json({ code: 200, data: rows[0], message: '成功' });
+        const dish = normalizeDish(rows[0]);
+        res.json({ code: 200, data: dish, message: '成功' });
     } catch (error) {
         res.status(500).json({ code: 500, message: error.message });
     }

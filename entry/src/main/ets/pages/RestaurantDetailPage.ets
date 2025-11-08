@@ -13,9 +13,9 @@ struct RestaurantDetailPage {
   @State selectedCategory: string = '';
   @State categories: string[] = [];
   @State cartCount: number = 0;
+  @State totalPrice: number = 0;
 
   aboutToAppear() {
-    // 获取路由参数
     const params = router.getParams() as Record<string, Object> | undefined;
     if (params && params['restaurant']) {
       this.restaurant = params['restaurant'] as Restaurant;
@@ -23,8 +23,10 @@ struct RestaurantDetailPage {
     this.loadDishes();
     CartService.subscribe((items) => {
       this.cartCount = CartService.getTotalCount();
+      this.totalPrice = CartService.getTotalPrice();
     });
     this.cartCount = CartService.getTotalCount();
+    this.totalPrice = CartService.getTotalPrice();
   }
 
   async loadDishes() {
@@ -168,7 +170,7 @@ struct RestaurantDetailPage {
           .height(50)
 
           Column() {
-            Text(`¥${CartService.getTotalPrice().toFixed(2)}`)
+            Text(`¥${this.totalPrice.toFixed(2)}`)
               .fontSize(18)
               .fontWeight(FontWeight.Bold)
               .fontColor(Color.White)

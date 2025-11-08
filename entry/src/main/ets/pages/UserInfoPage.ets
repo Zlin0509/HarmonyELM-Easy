@@ -19,7 +19,7 @@ struct UserInfoPage {
     this.loading = true;
     try {
       // 这里可以替换为实际的API调用
-      // await ApiService.updateUserInfo(this.user.id, this.user);
+      await ApiService.updateUserInfo(this.user.id, this.user);
       router.back();
     } catch (error) {
       console.error('保存用户信息失败:', error);

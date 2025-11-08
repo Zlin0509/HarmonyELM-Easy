@@ -6,7 +6,7 @@ import router from '@ohos.router';
 export struct UserCenterPage {
   @State user: User = {
     id: 1,
-    username: '用户',
+    username: '-1',
     phone: '138****8000',
     address: '北京市朝阳区xxx',
     avatar: ''
@@ -21,7 +21,7 @@ export struct UserCenterPage {
     this.loading = true;
     try {
       // 这里可以替换为实际的API调用
-      // this.user = await ApiService.getUserInfo(1); // 1是用户ID，实际应该从登录信息获取
+      this.user = await ApiService.getUserInfo(1); // 1是用户ID，实际应该从登录信息获取
     } catch (error) {
       console.error('加载用户信息失败:', error);
     } finally {
