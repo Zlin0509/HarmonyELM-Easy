@@ -2,6 +2,7 @@ import { Restaurant } from '../models/Restaurant';
 import { ApiService } from '../services/ApiService';
 import { CartService } from '../services/CartService';
 import router from '@ohos.router';
+import { when } from '@ohos/hypium';
 
 @Component
 export struct HomePageContent {

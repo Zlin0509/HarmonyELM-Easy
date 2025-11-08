@@ -14,6 +14,7 @@ struct RestaurantDetailPage {
   @State categories: string[] = [];
   @State cartCount: number = 0;
   @State totalPrice: number = 0;
+  @State dishQuantities: Record<number, number> = {};
 
   aboutToAppear() {
     const params = router.getParams() as Record<string, Object> | undefined;
@@ -24,6 +25,7 @@ struct RestaurantDetailPage {
     CartService.subscribe((items) => {
       this.cartCount = CartService.getTotalCount();
       this.totalPrice = CartService.getTotalPrice();
+      this.syncDishQuantities();
     });
     this.cartCount = CartService.getTotalCount();
     this.totalPrice = CartService.getTotalPrice();
@@ -37,6 +39,7 @@ struct RestaurantDetailPage {
       if (this.categories.length > 0) {
         this.selectedCategory = this.categories[0];
       }
+      this.syncDishQuantities();
     } catch (error) {
       console.error('加载菜品失败:', error);
     } finally {
@@ -49,6 +52,35 @@ struct RestaurantDetailPage {
       return this.dishes;
     }
     return this.dishes.filter(d => d.category === this.selectedCategory);
+  }
+
+  // 同步 CartService 中的数量到响应式状态
+  syncDishQuantities() {
+    this.dishes.forEach(dish => {
+      const cartItem = CartService.getCartItems().find(
+        item => item.dish.id === dish.id && item.restaurantId === this.restaurant.id
+      );
+      this.dishQuantities[dish.id] = cartItem ? cartItem.quantity : 0;
+    });
+  }
+
+  // 点击加号
+  onAdd(dish: Dish) {
+    const currentQty = this.dishQuantities[dish.id] ?? 0;
+    this.dishQuantities[dish.id] = currentQty + 1;
+    CartService.addToCart(dish, this.restaurant.id, this.restaurant.name);
+    this.cartCount = CartService.getTotalCount();
+    this.totalPrice = CartService.getTotalPrice();
+  }
+
+  // 点击减号
+  onMinus(dish: Dish) {
+    const currentQty = this.dishQuantities[dish.id] ?? 0;
+    const newQty = Math.max(currentQty - 1, 0);
+    this.dishQuantities[dish.id] = newQty;
+    CartService.updateQuantity(dish.id, this.restaurant.id, newQty);
+    this.cartCount = CartService.getTotalCount();
+    this.totalPrice = CartService.getTotalPrice();
   }
 
   build() {
@@ -114,7 +146,12 @@ struct RestaurantDetailPage {
             Text(category)
               .fontSize(14)
               .fontColor(this.selectedCategory === category ? '#FF6B00' : '#666666')
-              .padding({ left: 16, right: 16, top: 8, bottom: 8 })
+              .padding({
+                left: 16,
+                right: 16,
+                top: 8,
+                bottom: 8
+              })
               .backgroundColor(this.selectedCategory === category ? '#FFF5F0' : Color.White)
               .borderRadius(20)
               .margin({ right: 8 })
@@ -123,7 +160,12 @@ struct RestaurantDetailPage {
               })
           }, (item: string, index: number) => index.toString())
         }
-        .padding({ left: 16, right: 16, top: 12, bottom: 12 })
+        .padding({
+          left: 16,
+          right: 16,
+          top: 12,
+          bottom: 12
+        })
       }
       .scrollable(ScrollDirection.Horizontal)
       .scrollBar(BarState.Off)
@@ -183,7 +225,7 @@ struct RestaurantDetailPage {
           .layoutWeight(1)
           .margin({ left: 12 })
 
-            Button('去结算')
+          Button('去结算')
             .fontSize(16)
             .fontColor(Color.White)
             .backgroundColor('#FF6B00')
@@ -210,13 +252,6 @@ struct RestaurantDetailPage {
     .width('100%')
     .height('100%')
     .backgroundColor('#F5F5F5')
-  }
-
-  getDishQuantity(dishId: number): number {
-    let cartItem = CartService.getCartItems().find(item => 
-      item.dish.id === dishId && item.restaurantId === this.restaurant.id
-    );
-    return cartItem ? cartItem.quantity : 0;
   }
 
   @Builder
@@ -251,37 +286,39 @@ struct RestaurantDetailPage {
             .layoutWeight(1)
 
           Row() {
-            if (this.getDishQuantity(dish.id) > 0) {
-              Image($r('app.media.foreground'))
-                .width(24)
-                .height(24)
-                .onClick(() => {
-                  CartService.updateQuantity(dish.id, this.restaurant.id, this.getDishQuantity(dish.id) - 1);
-                })
-
-              Text(`${this.getDishQuantity(dish.id)}`)
+            // 减号按钮
+            Button() {
+              Text('-')
                 .fontSize(16)
-                .width(30)
-                .textAlign(TextAlign.Center)
-
-              Image($r('app.media.foreground'))
-                .width(24)
-                .height(24)
-                .onClick(() => {
-                  CartService.updateQuantity(dish.id, this.restaurant.id, this.getDishQuantity(dish.id) + 1);
-                })
-            } else {
-              Button('+')
-                .fontSize(18)
                 .fontColor(Color.White)
-                .backgroundColor('#FF6B00')
-                .borderRadius(15)
-                .width(30)
-                .height(30)
-                .onClick(() => {
-                  CartService.addToCart(dish, this.restaurant.id, this.restaurant.name);
-                })
+                .textAlign(TextAlign.Center)
+                .opacity(this.dishQuantities[dish.id] > 0 ? 1 : 0.3)
             }
+            .width(24)
+            .height(24)
+            .borderRadius(12)
+            .backgroundColor('#FF6B00')
+            .enabled(this.dishQuantities[dish.id] > 0) // 数量为0时不可点
+            .onClick(() => this.onMinus(dish))
+
+            // 数量文本
+            Text(`${this.dishQuantities[dish.id]}`)
+              .fontSize(16)
+              .width(30)
+              .textAlign(TextAlign.Center);
+
+            // 加号按钮
+            Button() {
+              Text('+')
+                .fontSize(16)
+                .fontColor(Color.White)
+                .textAlign(TextAlign.Center)
+            }
+            .width(24)
+            .height(24)
+            .borderRadius(12)
+            .backgroundColor('#FF6B00')
+            .onClick(() => this.onAdd(dish))
           }
         }
         .width('100%')
